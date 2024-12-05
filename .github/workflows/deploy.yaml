@@ -1,0 +1,36 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Repository Checkout
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Deploy to EC2
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }} # EC2 Public IP
+          username: ubuntu # EC2 사용자 이름
+          key: ${{ secrets.EC2_SSH_KEY }} # 비공개 키
+          port: 22
+          script: |
+            cd ./community-backend
+
+            git init
+            git remote add origin git@github.com:hautest/community-backend.git
+            git fetch origin
+            git reset --hard origin/main
+
+            npm install
+            npm run build
+
+            pm2 start dist/main.js --name "community-backend" --watch
