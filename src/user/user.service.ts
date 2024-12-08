@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { user } from 'drizzle/schema';
+import { db } from 'src/db';
+import { create } from 'domain';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
+  async create() {
+    await db.insert(user).values({
+      createdAt: new Date().toISOString(),
+      nickname: '12',
+      refreshToken: '12',
+    });
+
     return 'This action adds a new user';
   }
 
