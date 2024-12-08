@@ -30,6 +30,8 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+
             npm install
             npm run build
 
