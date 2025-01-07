@@ -1,35 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { user } from 'drizzle/schema';
 import { db } from 'src/db';
-import { create } from 'domain';
+import { eq, or } from 'drizzle-orm';
+import { SuccessRes } from 'src/common/Response';
+import dayjs from 'src/common/dayjs';
 
 @Injectable()
 export class UserService {
-  async create() {
-    await db.insert(user).values({
-      createdAt: new Date().toISOString(),
-      nickname: '12',
-      refreshToken: '12',
-    });
+  async create(userInfo: CreateUserDto) {
+    const createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    await db.insert(user).values({ ...userInfo, createdAt });
 
-    return 'This action adds a new user';
+    return SuccessRes({ data: {} });
   }
 
-  findAll() {
-    return `This action returns all user 배포 테스트4`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findOne({
+    email = '',
+    kakaoId = 0,
+  }: {
+    email?: string;
+    kakaoId?: number;
+  }) {
+    return await db
+      .select()
+      .from(user)
+      .where(or(eq(user.email, email), eq(user.kakaoId, kakaoId)));
   }
 }
